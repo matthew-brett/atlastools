@@ -20,11 +20,12 @@ COMPILE_ROOT = pjoin(HOME, 'stable_trees', 'atlas2')
 OUT_SDIR = 'atlas-%s' % archive_version(ATLAS_ARCHIVE)
 OUT_DIR = pjoin(COMPILE_ROOT, OUT_SDIR)
 BUILD_DIR = pjoin(OUT_DIR, 'test_build')
+FLAGS = ()
 
 
 def main():
     extract_archive(ATLAS_ARCHIVE, OUT_DIR)
-    build_in(OUT_DIR, BUILD_DIR)
+    build_in(OUT_DIR, BUILD_DIR, FLAGS)
 
 
 if __name__ == '__main__':
