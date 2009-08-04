@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import sys, os
+from glob import glob
 
 version = '0.1'
 
@@ -23,4 +24,5 @@ setup(name='atlastools',
       entry_points="""
       # -*- Entry points: -*-
       """,
+      scripts=glob('scripts/*.py'),
       )

@@ -7,3 +7,5 @@ atlastools.egg-info/dependency_links.txt
 atlastools.egg-info/entry_points.txt
 atlastools.egg-info/not-zip-safe
 atlastools.egg-info/top_level.txt
+scripts/build_atlas.py
+scripts/dethrottle.py
