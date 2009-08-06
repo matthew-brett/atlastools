@@ -9,24 +9,24 @@ http://math-atlas.sourceforge.net/
 
 import os
 from os.path import join as pjoin
-from atlastools.system import caller
-from atlastools.archives import extract_archive
-from atlastools.atlas import archive_version, build_in
+from atlastools import caller, extract_archive, atlas, get_cpuinfo
 
 
 HOME = os.environ['HOME']
 ATLAS_ARCHIVE = pjoin(HOME, 'tmp', 'atlas3.9.11.tar.bz2')
-COMPILE_ROOT = pjoin(HOME, 'stable_trees', 'atlas2')
-OUT_SDIR = 'atlas-%s' % archive_version(ATLAS_ARCHIVE)
+COMPILE_ROOT = pjoin(HOME, 'stable_trees', 'atlas')
+OUT_SDIR = 'atlas-%s' % atlas.archive_version(ATLAS_ARCHIVE)
 OUT_DIR = pjoin(COMPILE_ROOT, OUT_SDIR)
 BUILD_DIR = pjoin(OUT_DIR, 'test_build')
-FLAGS = ()
+LAPACK_FILE = pjoin(COMPILE_ROOT, 'lapack-3.2.1/lapack_X64_SSE3.a')
+FLAGS = '-b 64 -Fa alg "-fPIC -msse3" -D c "-DPentiumCPS=%f" --with-netlib-lapack=%s' \
+    % (get_cpuinfo()[0]['cpu MHz'], LAPACK_FILE)
 
 
 def main():
     extract_archive(ATLAS_ARCHIVE, OUT_DIR)
-    build_in(OUT_DIR, BUILD_DIR, FLAGS)
-
+    atlas.configure_in(OUT_DIR, BUILD_DIR, FLAGS)
+    print atlas.make_script(BUILD_DIR)
 
 if __name__ == '__main__':
     main()
