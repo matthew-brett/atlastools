@@ -21,11 +21,11 @@ HOME = os.environ['HOME']
 SOURCE_ROOT = pjoin(HOME, 'stable_trees', 'atlas')
 ARCHIVE_DIR = pjoin(SOURCE_ROOT, 'archives')
 LAPACK_ARCHIVE = pjoin(ARCHIVE_DIR, 'lapack-3.2.1.tgz')
-LAPACK_URL = 'ftp://ftp.netlib.org/lapack'
+LAPACK_URL = 'http://www.netlib.org/lapack'
 ATLAS_ARCHIVE = pjoin(ARCHIVE_DIR, 'atlas3.9.11.tar.bz2')
 ATLAS_URL = 'http://sourceforge.net/projects/math-atlas/files'
 BUILD_TYPE = 64 # one of 64 or 32
-COMPILE_FLAGS = '-m%s -fPIC -msse3' % BUILD_TYPE
+COMPILE_FLAGS = '-m%s -msse3' % BUILD_TYPE
 PLATFORM = 'X64_SSE3'
 TO_LINK_DIR = pjoin(HOME, 'blas_lapack')
 
@@ -37,6 +37,9 @@ LAPACK_OPTS = {'PLAT': '_' + PLATFORM,
         'NOOPT': '-O0 ' + COMPILE_FLAGS}
 LAPACK_LIB = pjoin(LAPACK_DIR, 'lapack_%s.a' % PLATFORM)
 ATLAS_BUILD_DIR = pjoin(ATLAS_DIR, 'builds', PLATFORM)
+# add PIC flag for 64 bit builds
+if '-m64' in COMPILE_FLAGS and '-fPIC' not in COMPILE_FLAGS:
+    COMPILE_FLAGS += ' -fPIC'
 CPU_MHZ = get_cpuinfo()[0]['cpu MHz']
 ATLAS_FLAGS = ('-b %(BUILD_TYPE)s ' + 
     '-Fa alg "%(COMPILE_FLAGS)s" ' + 

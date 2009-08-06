@@ -3,24 +3,8 @@
 from __future__ import with_statement
 
 from subprocess import call, Popen, PIPE
-import re
 
-
-def n_processors():
-    
-    proc_re = re.compile(r'processor\W+:\W+(\d+)')
-    max_pno = None
-    with open('/proc/cpuinfo', 'rt') as cpuinfo:
-        for line in cpuinfo:
-            match = proc_re.match(line)
-            if match:
-                pno = int(match.groups()[0])
-                if max_pno is None or pno > max_pno:
-                    max_pno = pno
-    if max_pno is None:
-        return None
-    return max_pno + 1
-
+from atlastools import get_cpuinfo()
 
 def disable_throttling(processor_number):
     # disable throttling on available CPUs
@@ -31,8 +15,7 @@ def disable_throttling(processor_number):
 
 
 def main():
-    n = n_processors()
-    for pno in range(n):
+    for pno in range(len(get_cpu_info())):
         disable_throttling(pno)
 
 
