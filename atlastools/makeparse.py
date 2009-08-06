@@ -48,15 +48,22 @@ var_re = re.compile(r'(\w+)\s*([:+\?]*)=\s*(.*)')
 varsub_re = re.compile(r'\$(\(\w+\))')
 
 
-class MakeParseError(Exception):
+class MakeError(Exception):
+    pass
+
+
+class ParseError(MakeError):
+    pass
+
+
+class SubstitutionError(MakeError):
     pass
 
 
 class ParseResult(object):
-    def __init__(self, name, contents, message=None, forward_refs=None):
+    def __init__(self, name, contents, forward_refs=None):
         self.name = name
         self.contents = contents
-        self.message = message
         if forward_refs is None:
             forward_refs = []
         self.forward_refs = forward_refs
@@ -82,13 +89,14 @@ def lineparse(line, context=None):
     '''
     if context is None:
         context = {}
-    message = None
     forward_refs = []
     match = var_re.match(line)
     if not match:
         return ParseResult(None, None)
     name, modifier, contents = match.groups()
     contents = contents.strip()
+    if contents.endswith('\\'):
+        raise ParseError('Cannot handle multilines')
     if modifier == '+':
         if name in context:
             contents = '%s %s' % (context[name], contents)
@@ -102,11 +110,9 @@ def lineparse(line, context=None):
         try:
             contents = sub_contents % context
         except KeyError:
-            return ParseResult(
-                name,
-                None,
-                'Failed variable substitution for "%s"' % contents)
-    return ParseResult(name, contents, message, forward_refs)
+            raise SubstitutionError(
+                'failed variable substitution for "%s"' % line)
+    return ParseResult(name, contents, forward_refs)
 
 
 class ParseLines(object):
@@ -130,7 +136,7 @@ class ParseLines(object):
         parse_result = lineparse(line, self.context)
         name, contents = parse_result.name, parse_result.contents
         if name in self._forward_refs:
-            raise MakeParseError('Detected changed forward reference')
+            raise SubstitutionError('Detected changed forward reference')
         self._forward_refs += parse_result.forward_refs
         if not contents is None:
             self.context[name] = contents
