@@ -28,11 +28,11 @@ PLATFORM = 'X64_SSE3'
 # Change these if you like, but they should take care of themselves
 LAPACK_ARCHIVE = pjoin(ARCHIVE_DIR, LAPACK_FILE)
 LAPACK_DIR = pjoin(SOURCE_ROOT, 'lapack-%s' % archive_version(LAPACK_ARCHIVE))
-LAPACK_URL = pjoin('ftp://ftp.lapack.org/lapack', LAPACK_FILE)
+LAPACK_URL = pjoin('http://www.netlib.org/lapack', LAPACK_FILE)
 ATLAS_ARCHIVE = pjoin(ARCHIVE_DIR, ATLAS_FILE)
 _atlas_version = archive_version(ATLAS_ARCHIVE)
-ATLAS_DIR = pjoin(SOURCE_ROOT, 'atlas-%s' % _atlas_version
-ATLAS_URL = pjoin('http://downloads.sourceforge.net/project/math-atlas/Developer%20%28unstable%29/%s' % _atlas_version, ATLAS_FILE)
+ATLAS_DIR = pjoin(SOURCE_ROOT, 'atlas-%s' % _atlas_version)
+ATLAS_URL = pjoin('http://downloads.sourceforge.net/project/math-atlas/Developer\\ (unstable)/%s' % _atlas_version, ATLAS_FILE)
 LAPACK_OPTS = {'PLAT': '_' + PLATFORM,
         'OPTS': '-O2 ' + COMPILE_FLAGS,
         'NOOPT': '-O0 ' + COMPILE_FLAGS}
@@ -46,9 +46,15 @@ ATLAS_FLAGS = ('-b %(BUILD_TYPE)s ' +
 
 
 def main():
-    urlretrieve(LAPACK_URL, LAPACK_ARCHIVE)
+    if not os.path.exists(LAPACK_ARCHIVE):
+        raise OSError(
+            'Cannot find archive %s; download from %s?' %
+            (LAPACK_ARCHIVE, LAPACK_URL))
     lapack.build(LAPACK_ARCHIVE, LAPACK_DIR, LAPACK_OPTS)
-    urlretrieve(ATLAS_URL, ATLAS_ARCHIVE)
+    if not os.path.exists(ATLAS_ARCHIVE):
+        raise OSError(
+            'Cannot find archive %s; download from %s?' %
+            (ATLAS_ARCHIVE, ATLAS_URL))
     atlas.build_in(ATLAS_ARCHIVE, ATLAS_DIR, ATLAS_BUILD_DIR, ATLAS_FLAGS)
     
 
