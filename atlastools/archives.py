@@ -6,19 +6,55 @@ import tempfile
 import tarfile
 
 
-def archive_version(filename, pattern):
-    ''' Extract archive version number from filename given ver '''
+def archive_version(filename, pattern=None):
+    ''' Extract archive version number from filename
+
+    Parameters
+    ----------
+    filename : string
+       filename that should contain a version number
+    pattern : string or regexp object, optional
+       Pattern to detect and return version number.  By default, the
+       version number if of form 3.4.5, or 3.4 - that is at least a
+       major and a minor version number separated by dots.  The pattern
+       should return the version from::
+
+          fname = os.path.split(filename)
+          match = pattern.match(fname).group()
+
+    Returns
+    -------
+    version : string
+       string containing version number
+
+    Raises
+    ------
+    ValueError, if there is not pattern match.
+
+    Examples
+    --------
+    >>> archive_version('atlas-3.9.11.tar.gz')
+    '3.9.11'
+    >>> archive_version('lapack33.9')
+    '33.9'
+    >>> archive_version('lapack33')
+    Traceback (most recent call last):
+       ...
+    ValueError: Could not get version from "lapack33"
+    '''
+    if pattern is None:
+        pattern = r'(\d+\.)(\d+\.)?(\d+)'
     if isinstance(pattern, basestring):
         pattern = re.compile(pattern)
     pth, fname = os.path.split(filename)
-    match = pattern.match(fname)
-    if match:
-        return '.'.join(match.groups())
-    raise ValueError('Could not get version from fname "%s"' %
-                     fname)
+    match = pattern.search(fname)
+    if not match:
+        raise ValueError('Could not get version from "%s"' %
+                         fname)
+    return match.group()
 
 
-def extract_archive(archive, out_dir, clobber=True):
+def extract_archive_to(archive, out_dir, clobber=True):
     """ Extract `archive` into `out_dir`, overwriting if `clobber`
 
     More specifically, we expect this archive to unpack such that if we

@@ -2,20 +2,10 @@ from __future__ import with_statement
 
 import os
 from os.path import join as pjoin
-import re
-from functools import partial
 
-from distutils.sysconfig import parse_makefile
-
-from .archives import archive_version
-from .system import caller
 from .makeparse import variable_sub
-
-
-VERSION_RE = re.compile(r'[\w-]+(\d+).(\d+).(\d+)*')
-
-archive_version = partial(archive_version, pattern=VERSION_RE)
-
+from .archives import extract_archive_to
+from .system import make_targets
 
 def configure(build_dir, opts = None, incfile = 'make.inc.gfortran'):
     # identify, read, store make.inc template
@@ -27,13 +17,9 @@ def configure(build_dir, opts = None, incfile = 'make.inc.gfortran'):
     return context
 
 
-def make(build_dir):
-    pwd = os.getcwd()
-    try:
-        os.chdir(build_dir)
-        caller('make lapacklib')
-    finally:
-        os.chdir(pwd)
-
+def build(archive, src_dir, opts):
+    extract_archive_to(archive, src_dir)
+    configure(src_dir, opts)
+    make_targets(src_dir, ('lapacklib',))
 
 
