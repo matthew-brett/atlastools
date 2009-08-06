@@ -74,27 +74,6 @@ VAR2 = 4
 '''
     dct = {'VAR1':'some string'}
     yield assert_equal, _str_sub(in_str, dct), out_str
-    # Test recursive variable error
-    in_str = '''
-# comment
-VAR1 = 1
-VAR2 = $(VAR1)
-VAR1 = 4
-'''
-    yield assert_raises, MakeParseError, _str_sub, in_str, {}
-    in_str = '''
-# comment
-VAR1 = 1
-VAR2 := $(VAR1)
-VAR1 = 4
-'''
-    out_str = '''
-# comment
-VAR1 = 1
-VAR2 := 1
-VAR1 = 4
-'''
-    yield assert_equal, _str_sub(in_str, {}), out_str
     
     
 def test_parse_lines():
@@ -102,5 +81,15 @@ def test_parse_lines():
     yield assert_equal, pl.context, {}
     res1 = pl.checked_parse('var1 = 3')
     yield assert_equal, pl.context, {'var1': '3'}
-    
+    res1 = pl.checked_parse('var2 = $(var1)')
+    yield assert_equal, pl.context, {'var1': '3', 'var2': '3'}
+    print pl._forward_refs
+    yield assert_raises, MakeParseError, pl.checked_parse, 'var1 = 4'
+    # no error for simple reference case though
+    res = pl.checked_parse('var3 = 3')
+    res = pl.checked_parse('var4 := $(var3)')
+    res = pl.checked_parse('var3 = 4')
+    # or ? reference case
+    res = pl.checked_parse('var5 := $(var3)')
+    res = pl.checked_parse('var3 = 4')
     
