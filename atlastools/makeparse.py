@@ -14,8 +14,9 @@ http://www.gnu.org/software/make/manual/make.html#Setting
 `` := `` gives simply expanded
 `` ?= `` means define if not set
 
-For now we only deal with simple expansion.  That is, if you have
-something like this::
+For now we only deal fully with simple expansion, or recursive expansion
+that only makes backward references.  That is, if you have something
+like this::
 
    var1 = $(var2)
    var2 = something
@@ -27,9 +28,9 @@ then we'll raise an error. But, if you have::
 
 then we'll let you through.
 
-There's also a '+=' command for appending text.  Error again.
+There's also a '+=' command for appending text; this we do handle.
 
-There is a also a ``define`` directive:
+There is a ``define`` directive:
 
 http://www.gnu.org/software/make/manual/make.html#Defining
 
@@ -113,7 +114,11 @@ class ParseLines(object):
 
     Used to keep variables for variable substitution, and raise errors
     when we find redefinition of variables that we have already used in
-    recursive substitution
+    recursive substitution.
+
+    Note that the `context` input dictionary will be modified parsing
+    lines, so you may want to copy it before passing into the
+    constructor. 
     '''
     def __init__(self, context=None):
         if context is None:
