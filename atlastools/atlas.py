@@ -1,5 +1,9 @@
+from __future__ import with_statement
 import os
 from os.path import join as pjoin
+import sys
+from glob import glob
+import shutil
 
 from .archives import extract_archive_to
 from .system import caller, make_targets
@@ -27,3 +31,36 @@ make time
 ''' % build_dir
 
 
+def copy_required(build_dir, output_dir):
+    ''' Copy Numpy-required files into output directory '''
+    if sys.platform == 'win32':
+        libext = 'lib'
+    else:
+        libext = 'a'
+    include_dir = pjoin(output_dir, 'include')
+    lib_dir = pjoin(output_dir, 'lib')
+    for dirpath in (include_dir, lib_dir):
+        try:
+            os.makedirs(dirpath)
+        except OSError:
+            pass
+    built_lib_search = pjoin(build_dir, 'lib', '*.%s' % libext)
+    libs = glob(built_lib_search)
+    if not libs:
+        raise RuntimeError('Cannot find libs with search "%s"' %
+                           built_lib_search)
+    for fpath in libs:
+        shutil.copy2(fpath, lib_dir)
+    with open(pjoin(output_dir, 'site.cfg'), 'wt') as fobj:
+        fobj.write(
+'''[DEFAULT]
+include_dirs = %s
+library_dirs = %s
+
+[blas_opt]
+libraries = f77blas, cblas, atlas
+
+[lapack_opt]
+libraries = lapack, f77blas, cblas, atlas
+''' % (include_dir, lib_dir))
+    

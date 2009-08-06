@@ -90,3 +90,7 @@ def extract_archive_to(archive, out_dir, clobber=True):
         shutil.rmtree(tmpdir)
 
 
+def prepare_for(archive, source_url):
+    if not os.path.exists(archive):
+        raise OSError('Cannot find %s; download from %s ?'
+                      % (archive, source_url))
