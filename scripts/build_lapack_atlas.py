@@ -9,21 +9,17 @@ from __future__ import with_statement
 
 import os
 from os.path import join as pjoin
-from urllib import urlretrieve
 
 from atlastools import lapack, atlas, archive_version
 from atlastools import get_cpuinfo, prepare_for
 
 
-HOME = os.environ['HOME']
-
 # Change these to suit your setup
+HOME = os.environ['HOME']
 SOURCE_ROOT = pjoin(HOME, 'stable_trees', 'atlas')
 ARCHIVE_DIR = pjoin(SOURCE_ROOT, 'archives')
 LAPACK_ARCHIVE = pjoin(ARCHIVE_DIR, 'lapack-3.2.1.tgz')
-LAPACK_URL = 'http://www.netlib.org/lapack'
 ATLAS_ARCHIVE = pjoin(ARCHIVE_DIR, 'atlas3.9.11.tar.bz2')
-ATLAS_URL = 'http://sourceforge.net/projects/math-atlas/files'
 BUILD_TYPE = 64 # one of 64 or 32
 COMPILE_FLAGS = '-m%s -msse3' % BUILD_TYPE
 PLATFORM = 'X64_SSE3'
@@ -31,7 +27,9 @@ TO_LINK_DIR = pjoin(HOME, 'blas_lapack')
 
 # Change these if you like, but they should take care of themselves
 LAPACK_DIR = pjoin(SOURCE_ROOT, 'lapack-%s' % archive_version(LAPACK_ARCHIVE))
+LAPACK_URL = 'http://www.netlib.org/lapack'
 ATLAS_DIR = pjoin(SOURCE_ROOT, 'atlas-%s' % archive_version(ATLAS_ARCHIVE))
+ATLAS_URL = 'http://sourceforge.net/projects/math-atlas/files'
 LAPACK_OPTS = {'PLAT': '_' + PLATFORM,
         'OPTS': '-O2 ' + COMPILE_FLAGS,
         'NOOPT': '-O0 ' + COMPILE_FLAGS}
