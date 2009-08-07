@@ -3,3 +3,4 @@ from .system import caller, make_targets
 from . import lapack
 from . import atlas
 from .cpuinfo import get_cpuinfo
+from .external import argparse
