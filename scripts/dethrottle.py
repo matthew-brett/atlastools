@@ -4,7 +4,15 @@ from __future__ import with_statement
 
 from subprocess import call, Popen, PIPE
 
-from atlastools import get_cpuinfo()
+
+def get_n_cpus():
+    n = 0
+    with open('/proc/cpuinfo') as fobj:
+        for line in fobj:
+            if line.startswith('processor	:'):
+                n += 1
+    return n
+
 
 def disable_throttling(processor_number):
     # disable throttling on available CPUs
@@ -15,7 +23,7 @@ def disable_throttling(processor_number):
 
 
 def main():
-    for pno in range(len(get_cpu_info())):
+    for pno in range(get_n_cpus()):
         disable_throttling(pno)
 
 
